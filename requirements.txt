@@ -1,0 +1,4 @@
+# Python 3.9.x recommended. Create venv, then:
+#   pip install -r requirements.txt
+dash[testing]==4.1.0
+pandas==2.3.3
