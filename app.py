@@ -1,22 +1,37 @@
-"""Dash app: Pink Morsel sales over time (processed CSV from data pipeline)."""
+"""Dash app: Pink Morsel sales over time with region filter and styling."""
 
 from pathlib import Path
 
 import pandas as pd
 import plotly.graph_objects as go
-from dash import Dash, dcc, html
+from dash import Dash, Input, Output, callback, dcc, html
 
 DATA_PATH = Path(__file__).resolve().parent / "data" / "pink_morsel_sales.csv"
 PRICE_CHANGE = pd.Timestamp("2021-01-15")
 
+REGION_OPTIONS = [
+    {"label": "North", "value": "north"},
+    {"label": "East", "value": "east"},
+    {"label": "South", "value": "south"},
+    {"label": "West", "value": "west"},
+    {"label": "All", "value": "all"},
+]
 
-def build_figure() -> go.Figure:
-    df = pd.read_csv(DATA_PATH, parse_dates=["Date"])
-    daily = (
-        df.groupby("Date", as_index=False)["Sales"]
-        .sum()
-        .sort_values("Date", kind="mergesort")
-    )
+_df = pd.read_csv(DATA_PATH, parse_dates=["Date"])
+
+
+def build_figure(region: str) -> go.Figure:
+    if region == "all":
+        daily = _df.groupby("Date", as_index=False)["Sales"].sum()
+        series_label = "Total daily sales (all regions)"
+        y_title = "Total sales ($)"
+    else:
+        sub = _df[_df["Region"].str.lower() == region.lower()]
+        daily = sub.groupby("Date", as_index=False)["Sales"].sum()
+        series_label = f"Daily sales — {region.title()}"
+        y_title = "Sales ($)"
+
+    daily = daily.sort_values("Date", kind="mergesort")
 
     fig = go.Figure()
     fig.add_trace(
@@ -24,8 +39,8 @@ def build_figure() -> go.Figure:
             x=daily["Date"],
             y=daily["Sales"],
             mode="lines",
-            name="Total daily sales",
-            line={"width": 2, "color": "#c2185b"},
+            name=series_label,
+            line={"width": 2.5, "color": "#c2185b"},
             hovertemplate="%{x|%Y-%m-%d}<br>$%{y:,.0f}<extra></extra>",
         )
     )
@@ -37,69 +52,105 @@ def build_figure() -> go.Figure:
         y1=1,
         xref="x",
         yref="paper",
-        line={"width": 1, "dash": "dash", "color": "#666"},
+        line={"width": 1, "dash": "dash", "color": "rgba(80,60,70,0.55)"},
     )
     fig.add_annotation(
         x=PRICE_CHANGE,
         y=1,
         xref="x",
         yref="paper",
-        text="15 Jan 2021: price increase",
+        text="15 Jan 2021 · price increase",
         showarrow=False,
         xanchor="left",
         yanchor="bottom",
-        font={"size": 12, "color": "#333"},
+        font={"size": 11, "color": "#5c4550"},
     )
     fig.update_layout(
-        margin={"l": 56, "r": 24, "t": 16, "b": 48},
-        plot_bgcolor="#fafafa",
-        paper_bgcolor="#ffffff",
+        margin={"l": 58, "r": 20, "t": 12, "b": 44},
+        plot_bgcolor="rgba(250,248,250,0.95)",
+        paper_bgcolor="rgba(0,0,0,0)",
         hovermode="x unified",
         showlegend=False,
         xaxis={
             "title": "Date",
             "showgrid": True,
-            "gridcolor": "#e0e0e0",
+            "gridcolor": "rgba(194,24,91,0.08)",
+            "zeroline": False,
+            "title_font": {"size": 13, "color": "#4a3540"},
+            "tickfont": {"color": "#5c4a52"},
         },
         yaxis={
-            "title": "Total sales ($)",
+            "title": y_title,
             "showgrid": True,
-            "gridcolor": "#e0e0e0",
+            "gridcolor": "rgba(194,24,91,0.08)",
+            "zeroline": False,
             "tickformat": ",.0f",
+            "title_font": {"size": 13, "color": "#4a3540"},
+            "tickfont": {"color": "#5c4a52"},
         },
     )
     return fig
 
 
-app = Dash(__name__)
+app = Dash(
+    __name__,
+    external_stylesheets=[
+        "https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&display=swap",
+    ],
+)
 app.title = "Pink Morsel sales — Soul Foods"
+
 app.layout = html.Div(
-    [
-        html.Header(
-            [
-                html.H1(
-                    "Soul Foods — Pink Morsel sales visualiser",
-                    style={
-                        "fontFamily": "system-ui, sans-serif",
-                        "fontWeight": "600",
-                        "fontSize": "1.75rem",
-                        "marginBottom": "0.35rem",
-                    },
+    className="app-shell",
+    children=[
+        html.Div(
+            className="app-inner",
+            children=[
+                html.Header(
+                    className="hero",
+                    children=[
+                        html.Div("Soul Foods analytics", className="hero-badge"),
+                        html.H1("Pink Morsel sales visualiser"),
+                        html.P(
+                            "Explore daily Pink Morsel revenue before and after the "
+                            "15 January 2021 price change. Pick a region or view all."
+                        ),
+                    ],
+                ),
+                html.Div(
+                    className="control-card",
+                    children=[
+                        html.Label("Region", className="control-heading", htmlFor="region-radio"),
+                        dcc.RadioItems(
+                            id="region-radio",
+                            options=REGION_OPTIONS,
+                            value="all",
+                            className="region-radio",
+                            inputStyle={"marginRight": "0.25rem"},
+                        ),
+                    ],
+                ),
+                html.Div(
+                    className="chart-card",
+                    children=[
+                        dcc.Graph(id="sales-line", style={"height": "500px"}),
+                    ],
                 ),
                 html.P(
-                    "Daily total sales revenue (all regions), from transaction data.",
-                    style={
-                        "fontFamily": "system-ui, sans-serif",
-                        "color": "#444",
-                        "marginTop": 0,
-                    },
+                    "Transaction-derived data · line sorted by date",
+                    className="footer-note",
                 ),
-            ]
+            ],
         ),
-        dcc.Graph(id="sales-line", figure=build_figure(), style={"height": "480px"}),
     ],
-    style={"maxWidth": "1000px", "margin": "0 auto", "padding": "1.5rem 1.25rem"},
+    style={"fontFamily": "'DM Sans', ui-sans-serif, system-ui, sans-serif"},
 )
+
+
+@callback(Output("sales-line", "figure"), Input("region-radio", "value"))
+def update_chart(region: str) -> go.Figure:
+    return build_figure(region or "all")
+
 
 server = app.server
 

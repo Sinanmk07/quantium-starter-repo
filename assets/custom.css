@@ -1,0 +1,143 @@
+/* Soul Foods Pink Morsel visualiser */
+
+:root {
+  --bg-deep: #1c1218;
+  --bg-card: rgba(255, 248, 252, 0.97);
+  --accent: #c2185b;
+  --accent-soft: #f8b4d0;
+  --ink: #2a1822;
+  --muted: #6b5a63;
+  --border: rgba(194, 24, 91, 0.18);
+  --shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  --radius: 18px;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-deep);
+}
+
+.app-shell {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 2rem clamp(1rem, 4vw, 2.5rem) 3rem;
+  background: radial-gradient(1200px 600px at 10% -10%, #4a2040 0%, transparent 55%),
+    radial-gradient(900px 500px at 100% 20%, #2a1a35 0%, transparent 50%),
+    linear-gradient(165deg, #140c10 0%, #1f1419 45%, #26161f 100%);
+}
+
+.app-inner {
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.hero {
+  text-align: center;
+  margin-bottom: 1.75rem;
+  padding: 0 0.5rem;
+}
+
+.hero-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-soft);
+  background: rgba(194, 24, 91, 0.25);
+  border: 1px solid rgba(248, 180, 208, 0.35);
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  margin-bottom: 0.85rem;
+}
+
+.hero h1 {
+  margin: 0 0 0.65rem;
+  font-size: clamp(1.55rem, 4vw, 2.1rem);
+  font-weight: 700;
+  color: #fff7fb;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.hero p {
+  margin: 0 auto;
+  max-width: 36rem;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: rgba(255, 245, 250, 0.78);
+}
+
+.control-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  padding: 1.15rem 1.35rem 1.35rem;
+  margin-bottom: 1.1rem;
+}
+
+.control-card label.control-heading {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+
+.region-radio {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.35rem;
+  align-items: center;
+}
+
+.region-radio label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(42, 24, 34, 0.12);
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--ink);
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.region-radio label:hover {
+  border-color: var(--accent);
+  background: #fff5f9;
+}
+
+.region-radio input[type="radio"] {
+  accent-color: var(--accent);
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  cursor: pointer;
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.35rem 0.65rem;
+  overflow: hidden;
+}
+
+.chart-card .js-plotly-plot {
+  border-radius: calc(var(--radius) - 6px);
+}
+
+.footer-note {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.82rem;
+  color: rgba(255, 230, 240, 0.45);
+}
