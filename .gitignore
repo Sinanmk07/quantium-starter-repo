@@ -130,3 +130,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Chromedriver fetched by tests/conftest.py for Dash UI tests
+tests/bin/chromedriver
+tests/bin/chromedriver.exe
+tests/bin/.chromedriver-for-chrome-version
